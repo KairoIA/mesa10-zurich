@@ -16,7 +16,8 @@ button{font:inherit;font-weight:700;padding:12px;border:0;border-radius:12px;bac
 <p>Escribe la contraseña que te ha pasado Javi. Solo se pide la primera vez.</p>
 <form id="f"><input id="c" type="password" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Contraseña" required>
 <button>Entrar</button><p class="mal" id="mal"></p></form>
-<small>Mesa 10 Studio · versión 20261107-0943</small></main>
+<p id="ios" hidden><small><b>iPhone:</b> en Safari, pulsa Compartir ▸ «Añadir a pantalla de inicio» y abre siempre la app desde ese icono: así se queda guardada, con los vídeos.</small></p>
+<small>Mesa 10 Studio · versión 20261107-1007</small></main>
 <p id="abriendo">Abriendo…</p>
 <script>
 var CLAVE='m10_zurich_pase';
@@ -32,6 +33,7 @@ function pintar(h){document.open();document.write(h);document.close()}
 function puerta(msg){document.getElementById('abriendo').hidden=true;document.getElementById('puerta').hidden=false;document.getElementById('mal').textContent=msg||''}
 function fallo(x){return x.message==='clave'?'Esa contraseña no es. Revísala con Javi.':'No puedo abrirla: ábrela una vez con cobertura.'}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});
+if(/iPhone|iPod/.test(navigator.userAgent)&&!navigator.standalone)document.getElementById('ios').hidden=false;
 var guardada=null;try{guardada=localStorage.getItem(CLAVE)}catch(x){}
 if(guardada){abrir(guardada).then(pintar,function(x){if(x.message==='clave'){try{localStorage.removeItem(CLAVE)}catch(y){}}puerta(fallo(x))})}else puerta();
 document.getElementById('f').addEventListener('submit',function(ev){ev.preventDefault();
