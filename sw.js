@@ -1,5 +1,5 @@
-// App de Juan (app_movil.py). Versión 20261107-1007: al cambiarla, el móvil coge las fichas nuevas.
-var V='m10-app-20261107-1007',VID='m10-videos';
+// App de Juan (app_movil.py). Versión 20261107-1019: al cambiarla, el móvil coge las fichas nuevas.
+var V='m10-app-20261107-1019',VID='m10-videos';
 var NUCLEO=["./", "index.html", "datos.bin", "manifest.webmanifest", "icono-180.png", "icono-192.png", "icono-512.png", "v/chef.jpg", "v/serenica.jpg", "v/naranjas.jpg", "v/moda-urbana.jpg", "v/moda-grafiti.jpg", "v/moda-clasica.jpg", "v/noche.jpg", "v/lucy.jpg", "v/marbella.jpg", "v/rep-lucy.jpg", "v/rep-adrian.jpg", "v/rep-sabrina.jpg", "v/rep-lara.jpg", "v/rep-malik.jpg", "v/rep-melissa.jpg", "v/rep-kimiko.jpg", "v/rep-runa.jpg", "v/clinica.jpg", "v/copisteria.jpg", "v/tekhne.jpg", "v/anfora.jpg"];
 self.addEventListener('install',function(e){e.waitUntil(caches.open(V).then(function(c){return c.addAll(NUCLEO)}).then(function(){return self.skipWaiting()}))});
 self.addEventListener('activate',function(e){e.waitUntil(caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k.indexOf('m10-app-')===0&&k!==V}).map(function(k){return caches.delete(k)}))}).then(function(){return self.clients.claim()}))});
