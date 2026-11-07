@@ -1,0 +1,40 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Mesa 10 · Zúrich</title>
+<meta name="robots" content="noindex, nofollow"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#141414"><link rel="apple-touch-icon" href="icono-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mesa 10"><meta name="apple-mobile-web-app-status-bar-style" content="black"><script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})</script>
+<style>
+:root{--hoja:#F6F6F4;--tinta:#141414;--azul:#4D6C8E;--rojo:#AF4828}
+@media (prefers-color-scheme:dark){:root{--hoja:#101312;--tinta:#EAEAEB;--azul:#799BC1;--rojo:#e08a6a}}
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--hoja);color:var(--tinta);font:17px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{width:min(340px,100% - 32px);text-align:center}
+img{width:64px;height:64px;border-radius:16px} h1{font-size:1.3rem;margin:.5em 0 .2em} p{margin:.4em 0}
+form{display:grid;gap:10px;margin-top:1em}
+input{font:inherit;padding:12px 14px;border-radius:12px;border:1px solid rgba(127,127,127,.4);background:transparent;color:inherit;text-align:center}
+button{font:inherit;font-weight:700;padding:12px;border:0;border-radius:12px;background:var(--azul);color:#fff}
+.mal{color:var(--rojo);font-weight:600;min-height:1.4em} small{opacity:.7}
+</style></head><body>
+<main id="puerta" hidden><img src="icono-192.png" alt=""><h1>Clientes en Zúrich</h1>
+<p>Escribe la contraseña que te ha pasado Javi. Solo se pide la primera vez.</p>
+<form id="f"><input id="c" type="password" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Contraseña" required>
+<button>Entrar</button><p class="mal" id="mal"></p></form>
+<small>Mesa 10 Studio · versión 20261107-0131</small></main>
+<p id="abriendo">Abriendo…</p>
+<script>
+var CLAVE='m10_zurich_pase';
+function normaliza(s){return s.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')}
+async function abrir(pase){
+  var r=await fetch('datos.bin');if(!r.ok)throw new Error('red');
+  var b=new Uint8Array(await r.arrayBuffer());
+  var base=await crypto.subtle.importKey('raw',new TextEncoder().encode(normaliza(pase)),'PBKDF2',false,['deriveKey']);
+  var k=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b.slice(0,16),iterations:600000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+  var claro;try{claro=await crypto.subtle.decrypt({name:'AES-GCM',iv:b.slice(16,28)},k,b.slice(28))}catch(x){throw new Error('clave')}
+  return new TextDecoder().decode(claro)}
+function pintar(h){document.open();document.write(h);document.close()}
+function puerta(msg){document.getElementById('abriendo').hidden=true;document.getElementById('puerta').hidden=false;document.getElementById('mal').textContent=msg||''}
+function fallo(x){return x.message==='clave'?'Esa contraseña no es. Revísala con Javi.':'No puedo abrirla: ábrela una vez con cobertura.'}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});
+var guardada=null;try{guardada=localStorage.getItem(CLAVE)}catch(x){}
+if(guardada){abrir(guardada).then(pintar,function(x){if(x.message==='clave'){try{localStorage.removeItem(CLAVE)}catch(y){}}puerta(fallo(x))})}else puerta();
+document.getElementById('f').addEventListener('submit',function(ev){ev.preventDefault();
+  var p=document.getElementById('c').value,bt=ev.target.querySelector('button');bt.disabled=true;bt.textContent='Abriendo…';
+  abrir(p).then(function(h){try{localStorage.setItem(CLAVE,p)}catch(x){}pintar(h)},function(x){bt.disabled=false;bt.textContent='Entrar';puerta(fallo(x))})});
+</script></body></html>
